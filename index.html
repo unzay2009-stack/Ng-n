@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>🎲 Soi Cầu Tài Xỉu</title>
+  
+  <!-- CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+      min-height: 100vh;
+    }
+    
+    /* iOS Card Style */
+    .ios-card {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .ios-card:active { transform: scale(0.98); }
+    
+    /* iOS Button */
+    .ios-btn {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+    
+    .ios-btn:active { 
+      transform: scale(0.95); 
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .ios-btn-tai {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+    }
+    
+    .ios-btn-xiu {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+    }
+    
+    /* History Item */
+    .history-item {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    
+    .history-item:active { transform: scale(0.9); }
+    
+    .history-tai { background: linear-gradient(135deg, #34d399, #10b981); }
+    .history-xiu { background: linear-gradient(135deg, #f87171, #ef4444); }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 0; height: 0; }
+    
+    /* Modal */
+    .modal-overlay {
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+    }
+    
+    .modal-content {
+      background: rgba(30,30,50,0.95);
+      backdrop-filter: blur(30px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      animation: modalIn 0.3s ease;
+    }
+    
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.9) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    
+    /* Toast */
+    .toast {
+      background: rgba(50,50,70,0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 14px;
+      animation: toastIn 0.3s ease;
+    }
+    
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Tab */
+    .tab-btn {
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .tab-btn.active {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+    }
+    
+    /* Glow effect */
+    .glow-green { box-shadow: 0 0 30px rgba(16, 185, 129, 0.5); }
+    .glow-red { box-shadow: 0 0 30px rgba(239, 68, 68, 0.5); }
+    .glow-blue { box-shadow: 0 0 30px rgba(59, 130, 246, 0.5); }
+    
+    /* Progress */
+    .progress-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: #374151;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    
+    /* Input iOS */
+    .ios-input {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: white;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s;
+    }
+    
+    .ios-input:focus {
+      border-color: #3b82f6;
+      background: rgba(255,255,255,0.12);
+    }
+    
+    /* Segment Control */
+    .segment-control {
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+      display: flex;
+    }
+    
+    .segment-btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    
+    .segment-btn.active {
+      background: #3b82f6;
+    }
+  </style>
+</head>
+
+<body class="text-white">
+
+  <!-- ===== HEADER ===== -->
+  <header class="sticky top-0 z-50 px-4 py-3" style="background: rgba(26,26,46,0.9); backdrop-filter: blur(20px);">
+    <div class="flex items-center justify-between max-w-lg mx-auto">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🎲</span>
+        <span class="font-bold text-lg">Soi Cầu Pro</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="openTab('settings')" class="ios-btn p-2">⚙️</button>
+        <button onclick="openTab('data')" class="ios-btn p-2">💾</button>
+        <button onclick="openTab('help')" class="ios-btn p-2">❓</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== MAIN CONTAINER ===== -->
+  <main class="max-w-lg mx-auto px-4 pb-32">
+
+    <!-- ===== PHẦN 1: NÚT NHẬP KẾT QUẢ ===== -->
+    <section class="mt-4">
+      <div class="ios-card p-4">
+        <h2 class="text-sm text-gray-400 mb-3 font-medium">📝 Nhập kết quả</h2>
+        
+        <!-- Nút TÀI / XỈU -->
+        <div class="grid grid-cols-2 gap-3 mb-3">
+          <button onclick="addResult('T')" class="ios-btn ios-btn-tai py-4 text-xl font-bold">
+            🎰 TÀI
+          </button>
+          <button onclick="addResult('X')" class="ios-btn ios-btn-xiu py-4 text-xl font-bold">
+            🎲 XỈU
+          </button>
+        </div>
+        
+        <!-- Nút phụ -->
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="undoLast()" class="ios-btn py-3 text-amber-400">
+            ↩️ Hoàn tác
+          </button>
+          <button onclick="confirmClear()" class="ios-btn py-3 text-gray-400">
+            🗑️ Xóa hết
+          </button>
+        </div>
+        
+        <!-- Nhập hàng loạt -->
+        <div class="mt-3">
+          <div class="flex gap-2">
+            <input type="text" id="bulkInput" class="ios-input flex-1" placeholder="VD: T X X T T hoặc 1 0 0 1 1">
+            <button onclick="processBulk()" class="ios-btn px-4 text-blue-400 font-medium">Nhập</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PHẦN 2: THỐNG KÊ NHANH ===== -->
+    <section class="mt-4">
+      <div class="ios-card p-4">
+        <h2 class="text-sm text-gray-400 mb-3 font-medium">📊 Thống kê nhanh</h2>
+        <div class="grid grid-cols-4 gap-2 text-center">
+          <div class="bg-white/5 rounded-xl p-3">
+            <div class="text-2xl font-bold" id="statTotal">0</div>
+            <div class="text-xs text-gray-400">Tổng</div>
+          </div>
+          <div class="bg-green-500/20 rounded-xl p-3">
+            <div class="text-2xl font-bold text-green-400" id="statTai">0</div>
+            <div class="text-xs text-gray-400">Tài</div>
+          </div>
+          <div class="bg-red-500/20 rounded-xl p-3">
+            <div class="text-2xl font-bold text-red-400" id="statXiu">0</div>
+            <div class="text-xs text-gray-400">Xỉu</div>
+          </div>
+          <div class="bg-blue-500/20 rounded-xl p-3">
+            <div class="text-2xl font-bold text-blue-400" id="statRatio">-</div>
+            <div class="text-xs text-gray-400">Tỷ lệ</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PHẦN 3: LỊCH SỬ ===== -->
+    <section class="mt-4">
+      <div class="ios-card p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm text-gray-400 font-medium">📜 Lịch sử (50 phiên gần nhất)</h2>
+          <button onclick="openTab('history')" class="text-blue-400 text-sm">Xem tất cả</button>
+        </div>
+        <div id="historyDisplay" class="flex gap-2 overflow-x-auto py-2">
+          <div class="text-gray-500 text-sm italic">Chưa có dữ liệu</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PHẦN 4: KHUYẾN NGHỊ ===== -->
+    <section class="mt-4">
+      <div id="recommendCard" class="ios-card p-4">
+        <h2 class="text-sm text-gray-400 mb-3 font-medium">🔥 Khuyến nghị</h2>
+        <div id="recommendContent" class="text-center py-6">
+          <div class="text-4xl mb-2">📊</div>
+          <div class="text-gray-400">Nhập ít nhất 10 phiên để xem khuyến nghị</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PHẦN 5: BẢNG XẾP HẠNG ===== -->
+    <section class="mt-4">
+      <div class="ios-card p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm text-gray-400 font-medium">🏆 Xếp hạng phương pháp</h2>
+          <select id="sortSelect" onchange="renderRanking()" class="ios-input py-1 px-2 text-sm w-auto">
+            <option value="winrate">Winrate</option>
+            <option value="profit">Lợi nhuận</option>
+          </select>
+        </div>
+        <div id="rankingList" class="space-y-2">
+          <div class="text-gray-500 text-sm text-center py-4">Cần ít nhất 10 phiên</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PHẦN 6: BIỂU ĐỒ ===== -->
+    <section class="mt-4">
+      <div class="ios-card p-4">
+        <h2 class="text-sm text-gray-400 mb-3 font-medium">📈 Biểu đồ</h2>
+        
+        <!-- Tabs -->
+        <div class="segment-control mb-4">
+          <button onclick="switchChart('winrate')" class="segment-btn active" data-chart="winrate">Winrate</button>
+          <button onclick="switchChart('profit')" class="segment-btn" data-chart="profit">Lợi nhuận</button>
+          <button onclick="switchChart('heatmap')" class="segment-btn" data-chart="heatmap">Heatmap</button>
+        </div>
+        
+        <div id="chartWinrate" class="chart-panel">
+          <canvas id="winrateChart" height="200"></canvas>
+        </div>
+        <div id="chartProfit" class="chart-panel hidden">
+          <canvas id="profitChart" height="200"></canvas>
+        </div>
+        <div id="chartHeatmap" class="chart-panel hidden">
+          <div id="heatmapGrid" class="grid grid-cols-10 gap-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PHẦN 7: QUẢN LÝ VỐN ===== -->
+    <section class="mt-4">
+      <div class="ios-card p-4">
+        <h2 class="text-sm text-gray-400 mb-3 font-medium">💰 Quản lý vốn</h2>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs text-gray-400 block mb-1">Vốn ban đầu (đ)</label>
+            <input type="number" id="capitalInput" value="10000000" onchange="updateCapital()" class="ios-input">
+          </div>
+          
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs text-gray-400 block mb-1">% Cược/tay</label>
+              <input type="number" id="betPercent" value="3" min="1" max="50" onchange="updateCapital()" class="ios-input">
+            </div>
+            <div>
+              <label class="text-xs text-gray-400 block mb-1">Tiền cược</label>
+              <div id="betAmount" class="ios-input bg-white/5 text-green-400 font-bold">300,000đ</div>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-green-500/10 rounded-xl p-3 border border-green-500/20">
+              <label class="text-xs text-green-400 block mb-1">🎯 Chốt lời (%)</label>
+              <input type="number" id="takeProfit" value="30" class="ios-input text-center" onchange="updateCapital()">
+            </div>
+            <div class="bg-red-500/10 rounded-xl p-3 border border-red-500/20">
+              <label class="text-xs text-red-400 block mb-1">🛑 Cắt lỗ (%)</label>
+              <input type="number" id="stopLoss" value="30" class="ios-input text-center" onchange="updateCapital()">
+            </div>
+          </div>
+          
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-red-400">Cắt lỗ</span>
+              <span id="currentPL" class="font-bold">0%</span>
+              <span class="text-green-400">Chốt lời</span>
+            </div>
+            <div class="progress-bar">
+              <div id="plProgress" class="progress-fill bg-gradient-to-r from-blue-500 to-green-500" style="width: 50%"></div>
+            </div>
+          </div>
+          
+          <div id="kellyAdvice" class="bg-blue-500/10 rounded-xl p-3 border border-blue-500/20">
+            <div class="text-xs text-blue-400">💡 Kelly gợi ý</div>
+            <div class="font-bold" id="kellyValue">Chưa đủ dữ liệu</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PHẦN 8: CHỈ SỐ NÂNG CAO ===== -->
+    <section class="mt-4">
+      <div class="ios-card p-4">
+        <button onclick="toggleAdvanced()" class="flex items-center justify-between w-full">
+          <h2 class="text-sm text-gray-400 font-medium">📊 Chỉ số nâng cao</h2>
+          <span id="advancedIcon" class="text-gray-400">▼</span>
+        </button>
+        <div id="advancedPanel" class="hidden mt-4">
+          <div id="advancedStats" class="grid grid-cols-3 gap-2">
+            <div class="text-center text-gray-500 col-span-3 py-2 text-sm">Cần dữ liệu</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PHẦN 9: CẢNH BÁO ===== -->
+    <section class="mt-4 mb-4">
+      <div class="ios-card p-4 border-amber-500/30">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">⚠️</span>
+          <div class="text-sm">
+            <div class="font-bold text-amber-400 mb-1">Lưu ý quan trọng</div>
+            <div class="text-gray-400">Tool chỉ phân tích thống kê, KHÔNG đảm bảo thắng. Cờ bạc có rủi ro. Chỉ chơi với tiền có thể mất.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== BOTTOM NAV (Mobile) ===== -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 px-4 py-2" style="background: rgba(26,26,46,0.95); backdrop-filter: blur(20px);">
+    <div class="max-w-lg mx-auto">
+      <div class="grid grid-cols-4 gap-2">
+        <button onclick="addResult('T')" class="ios-btn ios-btn-tai py-3 font-bold">TÀI</button>
+        <button onclick="addResult('X')" class="ios-btn ios-btn-xiu py-3 font-bold">XỈU</button>
+        <button onclick="undoLast()" class="ios-btn py-3 text-amber-400">↩️</button>
+        <button onclick="openTab('menu')" class="ios-btn py-3">☰</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== TOAST ===== -->
+  <div id="toastContainer" class="fixed top-16 left-4 right-4 z-[100] max-w-lg mx-auto"></div>
+
+  <!-- ===== MODALS ===== -->
+  
+  <!-- Menu Modal -->
+  <div id="menuModal" class="fixed inset-0 z-[200] hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('menuModal')"></div>
+    <div class="absolute bottom-0 left-0 right-0 modal-content rounded-t-3xl max-h-[80vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-4"></div>
+        <h3 class="text-xl font-bold mb-4">📋 Menu</h3>
+        <div class="space-y-2">
+          <button onclick="openTab('settings'); closeModal('menuModal')" class="ios-btn w-full py-4 text-left px-4">⚙️ Cài đặt</button>
+          <button onclick="openTab('data'); closeModal('menuModal')" class="ios-btn w-full py-4 text-left px-4">💾 Quản lý dữ liệu</button>
+          <button onclick="openTab('history'); closeModal('menuModal')" class="ios-btn w-full py-4 text-left px-4">📜 Xem tất cả lịch sử</button>
+          <button onclick="openTab('help'); closeModal('menuModal')" class="ios-btn w-full py-4 text-left px-4">❓ Hướng dẫn</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="fixed inset-0 z-[200] hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('settingsModal')"></div>
+    <div class="absolute inset-4 m-auto modal-content max-w-md max-h-[80vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold">⚙️ Cài đặt</h3>
+          <button onclick="closeModal('settingsModal')" class="text-2xl text-gray-400">✕</button>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="flex items-center justify-between ios-btn p-4">
+            <span>🌙 Chế độ tối</span>
+            <input type="checkbox" id="darkMode" checked class="w-5 h-5">
+          </div>
+          <div class="flex items-center justify-between ios-btn p-4">
+            <span>🔔 Âm thanh</span>
+            <input type="checkbox" id="soundEnabled" class="w-5 h-5">
+          </div>
+          <div class="flex items-center justify-between ios-btn p-4">
+            <span>😤 Cảnh báo tilt (5 thua liên tiếp)</span>
+            <input type="checkbox" id="tiltWarning" checked class="w-5 h-5">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Modal -->
+  <div id="dataModal" class="fixed inset-0 z-[200] hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('dataModal')"></div>
+    <div class="absolute inset-4 m-auto modal-content max-w-md max-h-[80vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold">💾 Dữ liệu</h3>
+          <button onclick="closeModal('dataModal')" class="text-2xl text-gray-400">✕</button>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="exportCSV()" class="ios-btn py-4 text-green-400">📤 Xuất CSV</button>
+          <button onclick="exportJSON()" class="ios-btn py-4 text-green-400">📤 Xuất JSON</button>
+          <button onclick="exportExcel()" class="ios-btn py-4 text-blue-400">📊 Xuất Excel</button>
+          <button onclick="exportPDF()" class="ios-btn py-4 text-purple-400">📄 Xuất PDF</button>
+          <button onclick="document.getElementById('importFile').click()" class="ios-btn py-4 text-amber-400 col-span-2">📥 Nhập dữ liệu</button>
+          <input type="file" id="importFile" accept=".csv,.json" class="hidden" onchange="importData(event)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div id="historyModal" class="fixed inset-0 z-[200] hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('historyModal')"></div>
+    <div class="absolute inset-4 m-auto modal-content max-w-md max-h-[80vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold">📜 Tất cả lịch sử</h3>
+          <button onclick="closeModal('historyModal')" class="text-2xl text-gray-400">✕</button>
+        </div>
+        <div id="fullHistoryList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Modal -->
+  <div id="helpModal" class="fixed inset-0 z-[200] hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('helpModal')"></div>
+    <div class="absolute inset-4 m-auto modal-content max-w-md max-h-[80vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold">❓ Hướng dẫn</h3>
+          <button onclick="closeModal('helpModal')" class="text-2xl text-gray-400">✕</button>
+        </div>
+        
+        <div class="space-y-4 text-sm">
+          <div class="ios-card p-4">
+            <h4 class="font-bold text-blue-400 mb-2">🎯 Cách sử dụng</h4>
+            <ol class="list-decimal list-inside space-y-1 text-gray-300">
+              <li>Nhập kết quả TÀI/XỈU sau mỗi phiên</li>
+              <li>Xem khuyến nghị dựa trên backtest</li>
+              <li>Tham khảo bảng xếp hạng phương pháp</li>
+              <li>Quản lý vốn theo Kelly Criterion</li>
+            </ol>
+          </div>
+          
+          <div class="ios-card p-4">
+            <h4 class="font-bold text-green-400 mb-2">📊 15 Phương pháp</h4>
+            <ul class="space-y-1 text-gray-300 text-xs">
+              <li>• Cầu bệt, 1-1, 2-2, 3-1, 4-4</li>
+              <li>• Cầu 1-2-3, 2-1, 1-3, Đảo chiều</li>
+              <li>• Markov bậc 1, 2, 3, 4</li>
+              <li>• Moving Average, Momentum</li>
+            </ul>
+          </div>
+          
+          <div class="ios-card p-4 border-amber-500/30">
+            <h4 class="font-bold text-amber-400 mb-2">⚠️ Lưu ý</h4>
+            <ul class="space-y-1 text-gray-300">
+              <li>• Winrate quá khứ KHÔNG đảm bảo tương lai</li>
+              <li>• Mỗi phiên là độc lập (Gambler's Fallacy)</li>
+              <li>• Chỉ cược với tiền có thể mất</li>
+            </ul>
+          </div>
+          
+          <div class="ios-card p-4">
+            <h4 class="font-bold text-purple-400 mb-2">⌨️ Phím tắt</h4>
+            <div class="grid grid-cols-2 gap-2 text-xs text-gray-300">
+              <div>T hoặc 1 = Thêm TÀI</div>
+              <div>X hoặc 0 = Thêm XỈU</div>
+              <div>Z = Hoàn tác</div>
+              <div>? = Trợ giúp</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Method Detail Modal -->
+  <div id="methodModal" class="fixed inset-0 z-[200] hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('methodModal')"></div>
+    <div class="absolute inset-4 m-auto modal-content max-w-md max-h-[80vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 id="methodTitle" class="text-xl font-bold">📊 Chi tiết</h3>
+          <button onclick="closeModal('methodModal')" class="text-2xl text-gray-400">✕</button>
+        </div>
+        <div id="methodContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Clear Modal -->
+  <div id="clearModal" class="fixed inset-0 z-[200] hidden">
+    <div class="modal-overlay absolute inset-0"></div>
+    <div class="absolute inset-4 m-auto modal-content max-w-sm flex items-center justify-center">
+      <div class="p-6 text-center">
+        <div class="text-5xl mb-4">⚠️</div>
+        <h3 class="text-xl font-bold mb-2">Xóa tất cả dữ liệu?</h3>
+        <p class="text-gray-400 mb-6 text-sm">Hành động này không thể hoàn tác</p>
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="closeModal('clearModal')" class="ios-btn py-3">Hủy</button>
+          <button onclick="clearAll()" class="ios-btn py-3 bg-red-500/20 text-red-400">Xóa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== JAVASCRIPT ===== -->
+  <script>
+    // ============ STATE ============
+    let state = {
+      history: [],
+      settings: {
+        capital: 10000000,
+        betPercent: 3,
+        takeProfit: 30,
+        stopLoss: 30,
+        sound: false,
+        tiltWarning: true
+      }
+    };
+
+    let charts = { winrate: null, profit: null };
+
+    // ============ 15 PHƯƠNG PHÁP ============
+    const methods = {
+      cauBet: {
+        name: 'Cầu bệt',
+        min: 1,
+        predict: h => h.length ? (h[h.length-1] === 'T' ? 'X' : 'T') : null
+      },
+      cau11: {
+        name: 'Cầu 1-1',
+        min: 2,
+        predict: h => {
+          if (h.length < 2) return null;
+          const l = h.slice(-2);
+          return l[0] !== l[1] ? (l[1] === 'T' ? 'X' : 'T') : null;
+        }
+      },
+      cau22: {
+        name: 'Cầu 2-2',
+        min: 2,
+        predict: h => {
+          if (h.length < 2) return null;
+          const l = h.slice(-2);
+          return l[0] === l[1] ? (l[0] === 'T' ? 'X' : 'T') : null;
+        }
+      },
+      cau31: {
+        name: 'Cầu 3-1',
+        min: 3,
+        predict: h => {
+          if (h.length < 3) return null;
+          const l = h.slice(-3);
+          return (l[0] === l[1] && l[1] === l[2]) ? (l[0] === 'T' ? 'X' : 'T') : null;
+        }
+      },
+      cau44: {
+        name: 'Cầu 4-4',
+        min: 4,
+        predict: h => {
+          if (h.length < 4) return null;
+          const l = h.slice(-4);
+          return l.every(x => x === l[0]) ? (l[0] === 'T' ? 'X' : 'T') : null;
+        }
+      },
+      cau123: {
+        name: 'Cầu 1-2-3',
+        min: 3,
+        predict: h => {
+          if (h.length < 3) return null;
+          let c = 1, cur = h[h.length-1];
+          for (let i = h.length-2; i >= 0 && h[i] === cur; i--) c++;
+          return c >= 3 ? (cur === 'T' ? 'X' : 'T') : cur;
+        }
+      },
+      cau21: {
+        name: 'Cầu 2-1',
+        min: 2,
+        predict: h => {
+          if (h.length < 2) return null;
+          const l = h.slice(-2);
+          return l[0] === l[1] ? (l[0] === 'T' ? 'X' : 'T') : l[1];
+        }
+      },
+      cau13: {
+        name: 'Cầu 1-3',
+        min: 3,
+        predict: h => {
+          if (h.length < 3) return null;
+          let c = 1, cur = h[h.length-1];
+          for (let i = h.length-2; i >= 0 && h[i] === cur; i--) c++;
+          return c === 3 ? (cur === 'T' ? 'X' : 'T') : null;
+        }
+      },
+      cauDao: {
+        name: 'Cầu đảo chiều',
+        min: 5,
+        predict: h => {
+          if (h.length < 5) return null;
+          let c = 1, cur = h[h.length-1];
+          for (let i = h.length-2; i >= 0 && h[i] === cur; i--) c++;
+          return c >= 5 ? (cur === 'T' ? 'X' : 'T') : null;
+        }
+      },
+      markov1: {
+        name: 'Markov Bậc 1',
+        min: 10,
+        predict: h => {
+          if (h.length < 2) return null;
+          const last = h[h.length-1];
+          let tt=0, tx=0, xt=0, xx=0;
+          for (let i = 0; i < h.length-1; i++) {
+            if (h[i]==='T' && h[i+1]==='T') tt++;
+            if (h[i]==='T' && h[i+1]==='X') tx++;
+            if (h[i]==='X' && h[i+1]==='T') xt++;
+            if (h[i]==='X' && h[i+1]==='X') xx++;
+          }
+          return last === 'T' ? (tt >= tx ? 'T' : 'X') : (xt >= xx ? 'T' : 'X');
+        }
+      },
+      markov2: {
+        name: 'Markov Bậc 2',
+        min: 15,
+        predict: h => {
+          if (h.length < 3) return null;
+          const p = h.slice(-2).join('');
+          const tr = {};
+          for (let i = 0; i < h.length-2; i++) {
+            const k = h[i]+h[i+1], n = h[i+2];
+            if (!tr[k]) tr[k] = {T:0, X:0};
+            tr[k][n]++;
+          }
+          return tr[p] ? (tr[p].T >= tr[p].X ? 'T' : 'X') : null;
+        }
+      },
+      markov3: {
+        name: 'Markov Bậc 3',
+        min: 20,
+        predict: h => {
+          if (h.length < 4) return null;
+          const p = h.slice(-3).join('');
+          const tr = {};
+          for (let i = 0; i < h.length-3; i++) {
+            const k = h[i]+h[i+1]+h[i+2], n = h[i+3];
+            if (!tr[k]) tr[k] = {T:0, X:0};
+            tr[k][n]++;
+          }
+          return tr[p] ? (tr[p].T >= tr[p].X ? 'T' : 'X') : null;
+        }
+      },
+      markov4: {
+        name: 'Markov Bậc 4',
+        min: 25,
+        predict: h => {
+          if (h.length < 5) return null;
+          const p = h.slice(-4).join('');
+          const tr = {};
+          for (let i = 0; i < h.length-4; i++) {
+            const k = h[i]+h[i+1]+h[i+2]+h[i+3], n = h[i+4];
+            if (!tr[k]) tr[k] = {T:0, X:0};
+            tr[k][n]++;
+          }
+          return tr[p] ? (tr[p].T >= tr[p].X ? 'T' : 'X') : null;
+        }
+      },
+      ma: {
+        name: 'Moving Average',
+        min: 10,
+        predict: h => {
+          if (h.length < 5) return null;
+          const v = h.slice(-5).map(x => x === 'T' ? 1 : 0);
+          const ma = v.reduce((a,b) => a+b, 0) / 5;
+          return ma > 0.5 ? 'T' : 'X';
+        }
+      },
+      momentum: {
+        name: 'Momentum',
+        min: 10,
+        predict: h => {
+          if (h.length < 10) return null;
+          const v = h.map(x => x === 'T' ? 1 : 0);
+          const r = v.slice(-5).reduce((a,b) => a+b, 0);
+          const o = v.slice(-10, -5).reduce((a,b) => a+b, 0);
+          return r > o ? 'T' : 'X';
+        }
+      }
+    };
+
+    // ============ BACKTEST ============
+    function backtest(key, history) {
+      const m = methods[key];
+      const h = history.map(x => x.result);
+      
+      let wins = 0, losses = 0, profit = 0;
+      let wStreak = 0, lStreak = 0, maxW = 0, maxL = 0;
+      let equity = [0];
+      
+      for (let i = m.min; i < h.length; i++) {
+        const pred = m.predict(h.slice(0, i));
+        if (pred === null) continue;
+        
+        const actual = h[i];
+        if (pred === actual) {
+          wins++; profit++; wStreak++; lStreak = 0;
+          maxW = Math.max(maxW, wStreak);
+        } else {
+          losses++; profit--; lStreak++; wStreak = 0;
+          maxL = Math.max(maxL, lStreak);
+        }
+        equity.push(profit);
+      }
+      
+      const total = wins + losses;
+      const winrate = total > 0 ? (wins / total * 100) : 0;
+      const nextPred = h.length >= m.min ? m.predict(h) : null;
+      
+      // Kelly
+      const kelly = total > 0 ? ((winrate/100) - ((100-winrate)/100)) * 100 : 0;
+      
+      return {
+        key, name: m.name, winrate: +winrate.toFixed(1),
+        wins, losses, profit, total,
+        maxWin: maxW, maxLoss: maxL,
+        equity, nextPred,
+        kelly: Math.max(0, Math.min(kelly, 25)).toFixed(1)
+      };
+    }
+
+    // ============ RENDER ============
+    function render() {
+      renderStats();
+      renderHistory();
+      renderRecommend();
+      renderRanking();
+      renderCharts();
+      renderAdvanced();
+      updateCapital();
+    }
+
+    function renderStats() {
+      const h = state.history;
+      const tai = h.filter(x => x.result === 'T').length;
+      const xiu = h.filter(x => x.result === 'X').length;
+      
+      document.getElementById('statTotal').textContent = h.length;
+      document.getElementById('statTai').textContent = tai;
+      document.getElementById('statXiu').textContent = xiu;
+      document.getElementById('statRatio').textContent = xiu > 0 ? (tai/xiu).toFixed(1) : '-';
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('historyDisplay');
+      const recent = state.history.slice(-50);
+      
+      if (!recent.length) {
+        container.innerHTML = '<div class="text-gray-500 text-sm italic">Chưa có dữ liệu</div>';
+        return;
+      }
+      
+      container.innerHTML = recent.map((item, i) => {
+        const idx = state.history.length - 50 + i;
+        const isTai = item.result === 'T';
+        return `<div class="history-item ${isTai ? 'history-tai' : 'history-xiu'}" onclick="showSession(${idx})">${idx + 1}</div>`;
+      }).join('');
+      
+      container.scrollLeft = container.scrollWidth;
+    }
+
+    function renderRecommend() {
+      const container = document.getElementById('recommendContent');
+      const card = document.getElementById('recommendCard');
+      
+      if (state.history.length < 10) {
+        container.innerHTML = `
+          <div class="text-center py-6">
+            <div class="text-4xl mb-2">📊</div>
+            <div class="text-gray-400">Nhập ít nhất 10 phiên để xem khuyến nghị</div>
+            <div class="text-sm text-gray-500 mt-2">(${state.history.length}/10)</div>
+          </div>`;
+        card.classList.remove('glow-green', 'glow-red', 'glow-blue');
+        return;
+      }
+      
+      const results = Object.keys(methods).map(k => backtest(k, state.history));
+      results.sort((a, b) => b.winrate - a.winrate);
+      
+      const top = results[0];
+      const agreeMethods = results.filter(r => r.nextPred === top.nextPred && r.winrate >= 65);
+      
+      card.classList.remove('glow-green', 'glow-red', 'glow-blue');
+      
+      if (top.winrate >= 68) {
+        const isTai = top.nextPred === 'T';
+        card.classList.add(isTai ? 'glow-green' : 'glow-red');
+        
+        let html = '';
+        if (agreeMethods.length >= 2) {
+          const avg = agreeMethods.reduce((a, b) => a + b.winrate, 0) / agreeMethods.length;
+          html = `
+            <div class="text-center">
+              <div class="text-lg font-bold text-amber-400 mb-2">🔥🔥 SIÊU CẦU 🔥🔥</div>
+              <div class="inline-block px-8 py-4 rounded-2xl text-3xl font-bold ${isTai ? 'bg-green-500' : 'bg-red-500'} mb-4">
+                ${isTai ? '🎰 TÀI' : '🎲 XỈU'}
+              </div>
+              <div class="text-sm text-gray-400 mb-2">${agreeMethods.length} phương pháp đồng thuận</div>
+              <div class="flex flex-wrap justify-center gap-2 mb-3">
+                ${agreeMethods.slice(0,3).map(m => `<span class="bg-white/10 px-2 py-1 rounded-lg text-xs">${m.name} (${m.winrate}%)</span>`).join('')}
+              </div>
+              <div class="text-2xl font-bold ${isTai ? 'text-green-400' : 'text-red-400'}">Trung bình: ${avg.toFixed(1)}%</div>
+            </div>`;
+        } else {
+          html = `
+            <div class="text-center">
+              <div class="inline-block px-8 py-4 rounded-2xl text-3xl font-bold ${isTai ? 'bg-green-500' : 'bg-red-500'} mb-4">
+                ✅ ${isTai ? 'TÀI' : 'XỈU'}
+              </div>
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div class="bg-white/5 rounded-xl p-3">
+                  <div class="text-gray-400">Phương pháp</div>
+                  <div class="font-bold">${top.name}</div>
+                </div>
+                <div class="bg-white/5 rounded-xl p-3">
+                  <div class="text-gray-400">Độ tin cậy</div>
+                  <div class="font-bold ${isTai ? 'text-green-400' : 'text-red-400'}">${top.winrate}%</div>
+                </div>
+                <div class="bg-white/5 rounded-xl p-3">
+                  <div class="text-gray-400">Lợi nhuận</div>
+                  <div class="font-bold ${top.profit >= 0 ? 'text-green-400' : 'text-red-400'}">${top.profit >= 0 ? '+' : ''}${top.profit}</div>
+                </div>
+                <div class="bg-white/5 rounded-xl p-3">
+                  <div class="text-gray-400">Drawdown max</div>
+                  <div class="font-bold text-amber-400">${top.maxLoss} phiên</div>
+                </div>
+              </div>
+            </div>`;
+        }
+        container.innerHTML = html;
+      } else {
+        card.classList.add('glow-blue');
+        container.innerHTML = `
+          <div class="text-center py-4">
+            <div class="text-4xl mb-2">⚠️</div>
+            <div class="text-xl font-bold text-amber-400 mb-2">CẦU XẤU</div>
+            <div class="text-gray-400">Không nên vào tiền</div>
+            <div class="text-sm text-gray-500 mt-2">Winrate cao nhất: ${top.winrate}%</div>
+            <div class="mt-2 text-sm">💡 Chờ cầu đẹp, tiếp tục ghi nhận</div>
+          </div>`;
+      }
+    }
+
+    function renderRanking() {
+      const container = document.getElementById('rankingList');
+      
+      if (state.history.length < 10) {
+        container.innerHTML = '<div class="text-gray-500 text-sm text-center py-4">Cần ít nhất 10 phiên</div>';
+        return;
+      }
+      
+      const results = Object.keys(methods).map(k => backtest(k, state.history));
+      const sortBy = document.getElementById('sortSelect').value;
+      
+      if (sortBy === 'winrate') results.sort((a, b) => b.winrate - a.winrate);
+      else results.sort((a, b) => b.profit - a.profit);
+      
+      container.innerHTML = results.slice(0, 8).map((r, i) => {
+        const color = r.winrate >= 70 ? 'text-green-400' : (r.winrate >= 60 ? 'text-amber-400' : 'text-red-400');
+        const predColor = r.nextPred === 'T' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400';
+        
+        return `
+          <div class="ios-btn p-3 flex items-center justify-between" onclick="showMethodDetail('${r.key}')">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold">${i + 1}</div>
+              <div>
+                <div class="font-medium text-sm">${r.name}</div>
+                <div class="text-xs text-gray-400">${r.total} mẫu</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              ${r.nextPred ? `<span class="px-2 py-1 rounded-lg text-xs font-bold ${predColor}">${r.nextPred}</span>` : ''}
+              <div class="text-right">
+                <div class="font-bold ${color}">${r.winrate}%</div>
+                <div class="text-xs ${r.profit >= 0 ? 'text-green-400' : 'text-red-400'}">${r.profit >= 0 ? '+' : ''}${r.profit}</div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderCharts() {
+      if (state.history.length < 10) return;
+      
+      const results = Object.keys(methods).map(k => backtest(k, state.history));
+      results.sort((a, b) => b.winrate - a.winrate);
+      
+      // Winrate Chart
+      const ctx1 = document.getElementById('winrateChart').getContext('2d');
+      if (charts.winrate) charts.winrate.destroy();
+      
+      charts.winrate = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: results.map(r => r.name.replace('Cầu ', '').replace('Markov ', 'M')),
+          datasets: [{
+            data: results.map(r => r.winrate),
+            backgroundColor: results.map(r => r.winrate >= 70 ? '#22c55e' : (r.winrate >= 60 ? '#f59e0b' : '#ef4444')),
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: '#374151' }, ticks: { color: '#9ca3af' } },
+            x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 9 } } }
+          }
+        }
+      });
+      
+      // Profit Chart
+      const ctx2 = document.getElementById('profitChart').getContext('2d');
+      if (charts.profit) charts.profit.destroy();
+      
+      const top5 = results.slice(0, 5);
+      const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6', '#ec4899'];
+      
+      charts.profit = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: top5[0]?.equity.map((_, i) => i) || [],
+          datasets: top5.map((r, i) => ({
+            label: r.name,
+            data: r.equity,
+            borderColor: colors[i],
+            backgroundColor: 'transparent',
+            tension: 0.3,
+            pointRadius: 0
+          }))
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#9ca3af', font: { size: 10 } } } },
+          scales: {
+            y: { grid: { color: '#374151' }, ticks: { color: '#9ca3af' } },
+            x: { display: false }
+          }
+        }
+      });
+      
+      // Heatmap
+      renderHeatmap();
+    }
+
+    function renderHeatmap() {
+      const container = document.getElementById('heatmapGrid');
+      const last100 = state.history.slice(-100);
+      
+      // Pad
+      while (last100.length < 100) last100.unshift({ result: null });
+      
+      container.innerHTML = last100.map(item => {
+        if (!item.result) return '<div class="aspect-square rounded bg-white/5"></div>';
+        const isTai = item.result === 'T';
+        return `<div class="aspect-square rounded ${isTai ? 'bg-green-500' : 'bg-red-500'} flex items-center justify-center text-[8px] font-bold">${isTai ? 'T' : 'X'}</div>`;
+      }).join('');
+    }
+
+    function renderAdvanced() {
+      const container = document.getElementById('advancedStats');
+      
+      if (state.history.length < 10) {
+        container.innerHTML = '<div class="text-center text-gray-500 col-span-3 py-2 text-sm">Cần dữ liệu</div>';
+        return;
+      }
+      
+      const results = Object.keys(methods).map(k => backtest(k, state.history));
+      results.sort((a, b) => b.winrate - a.winrate);
+      const best = results[0];
+      
+      const stats = [
+        { label: 'Winrate', value: best.winrate + '%', color: 'text-green-400' },
+        { label: 'Profit', value: (best.profit >= 0 ? '+' : '') + best.profit, color: best.profit >= 0 ? 'text-green-400' : 'text-red-400' },
+        { label: 'Thắng max', value: best.maxWin, color: 'text-green-400' },
+        { label: 'Thua max', value: best.maxLoss, color: 'text-red-400' },
+        { label: 'Kelly %', value: best.kelly + '%', color: 'text-blue-400' },
+        { label: 'Mẫu', value: best.total, color: 'text-gray-400' }
+      ];
+      
+      container.innerHTML = stats.map(s => `
+        <div class="bg-white/5 rounded-xl p-2 text-center">
+          <div class="text-[10px] text-gray-400">${s.label}</div>
+          <div class="font-bold ${s.color}">${s.value}</div>
+        </div>
+      `).join('');
+    }
+
+    function switchChart(tab) {
+      document.querySelectorAll('.segment-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.segment-btn[data-chart="${tab}"]`).classList.add('active');
+      
+      document.querySelectorAll('.chart-panel').forEach(el => el.classList.add('hidden'));
+      document.getElementById('chart' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+    }
+
+    function toggleAdvanced() {
+      const panel = document.getElementById('advancedPanel');
+      const icon = document.getElementById('advancedIcon');
+      panel.classList.toggle('hidden');
+      icon.textContent = panel.classList.contains('hidden') ? '▼' : '▲';
+    }
+
+    // ============ ACTIONS ============
+    function addResult(r) {
+      state.history.push({
+        id: Date.now(),
+        result: r,
+        timestamp: new Date().toISOString()
+      });
+      
+      checkTilt();
+      save();
+      render();
+      toast(`✅ Đã thêm ${r === 'T' ? 'TÀI' : 'XỈU'} - Phiên #${state.history.length}`, 'success');
+    }
+
+    function undoLast() {
+      if (!state.history.length) {
+        toast('⚠️ Không có gì để hoàn tác', 'warning');
+        return;
+      }
+      const removed = state.history.pop();
+      save();
+      render();
+      toast(`↩️ Đã hoàn tác ${removed.result === 'T' ? 'TÀI' : 'XỈU'}`, 'info');
+    }
+
+    function confirmClear() {
+      openModal('clearModal');
+    }
+
+    function clearAll() {
+      state.history = [];
+      save();
+      render();
+      closeModal('clearModal');
+      toast('🗑️ Đã xóa tất cả', 'info');
+    }
+
+    function processBulk() {
+      const input = document.getElementById('bulkInput').value.trim().toUpperCase();
+      if (!input) {
+        toast('⚠️ Vui lòng nhập chuỗi', 'warning');
+        return;
+      }
+      
+      const tokens = input.split(/[\s,;]+/);
+      let count = 0;
+      
+      tokens.forEach(t => {
+        if (t === 'T' || t === '1') {
+          state.history.push({ id: Date.now() + count, result: 'T', timestamp: new Date().toISOString() });
+          count++;
+        } else if (t === 'X' || t === '0') {
+          state.history.push({ id: Date.now() + count, result: 'X', timestamp: new Date().toISOString() });
+          count++;
+        }
+      });
+      
+      if (count > 0) {
+        document.getElementById('bulkInput').value = '';
+        save();
+        render();
+        toast(`✅ Đã thêm ${count} phiên`, 'success');
+      } else {
+        toast('⚠️ Không tìm thấy T/X/1/0 hợp lệ', 'warning');
+      }
+    }
+
+    function checkTilt() {
+      if (!state.settings.tiltWarning || state.history.length < 5) return;
+      
+      const h = state.history.map(x => x.result);
+      const results = Object.keys(methods).map(k => backtest(k, state.history));
+      results.sort((a, b) => b.winrate - a.winrate);
+      
+      // Kiểm tra thua 5 liên tiếp cho phương pháp tốt nhất
+      const best = results[0];
+      if (best.maxLoss >= 5) {
+        toast('😤 Cảnh báo: Có chuỗi thua ' + best.maxLoss + ' liên tiếp. Cân nhắc nghỉ ngơi!', 'warning');
+      }
+    }
+
+    // ============ CAPITAL ============
+    function updateCapital() {
+      const capital = parseInt(document.getElementById('capitalInput').value) || 10000000;
+      const percent = parseFloat(document.getElementById('betPercent').value) || 3;
+      const takeProfit = parseFloat(document.getElementById('takeProfit').value) || 30;
+      const stopLoss = parseFloat(document.getElementById('stopLoss').value) || 30;
+      
+      state.settings = { ...state.settings, capital, betPercent: percent, takeProfit, stopLoss };
+      
+      const betAmount = capital * percent / 100;
+      document.getElementById('betAmount').textContent = betAmount.toLocaleString('vi-VN') + 'đ';
+      
+      // Kelly
+      if (state.history.length >= 10) {
+        const results = Object.keys(methods).map(k => backtest(k, state.history));
+        results.sort((a, b) => b.winrate - a.winrate);
+        const k = results[0].kelly;
+        const kAmount = capital * k / 100;
+        document.getElementById('kellyValue').textContent = `${k}% = ${kAmount.toLocaleString('vi-VN')}đ`;
+      }
+      
+      save();
+    }
+
+    // ============ MODALS ============
+    function openTab(tab) {
+      openModal(tab + 'Modal');
+      
+      if (tab === 'history') {
+        renderFullHistory();
+      }
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function renderFullHistory() {
+      const container = document.getElementById('fullHistoryList');
+      
+      if (!state.history.length) {
+        container.innerHTML = '<div class="text-gray-500 text-center py-4">Chưa có lịch sử</div>';
+        return;
+      }
+      
+      container.innerHTML = state.history.slice().reverse().map((item, i) => {
+        const idx = state.history.length - i;
+        const isTai = item.result === 'T';
+        const date = new Date(item.timestamp);
+        
+        return `
+          <div class="ios-btn p-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="history-item ${isTai ? 'history-tai' : 'history-xiu'} w-10 h-10 text-sm">${idx}</div>
+              <div>
+                <div class="font-medium">${isTai ? 'TÀI' : 'XỈU'}</div>
+                <div class="text-xs text-gray-400">${date.toLocaleString('vi-VN')}</div>
+              </div>
+            </div>
+            <button onclick="deleteSession(${state.history.length - 1 - i})" class="text-red-400 p-2">🗑️</button>
+          </div>`;
+      }).join('');
+    }
+
+    function deleteSession(idx) {
+      state.history.splice(idx, 1);
+      save();
+      render();
+      renderFullHistory();
+      toast('🗑️ Đã xóa phiên', 'info');
+    }
+
+    function showSession(idx) {
+      const item = state.history[idx];
+      if (!item) return;
+      const date = new Date(item.timestamp);
+      toast(`Phiên #${idx + 1}: ${item.result === 'T' ? 'TÀI' : 'XỈU'} - ${date.toLocaleTimeString('vi-VN')}`, 'info');
+    }
+
+    function showMethodDetail(key) {
+      const r = backtest(key, state.history);
+      
+      document.getElementById('methodTitle').textContent = r.name;
+      document.getElementById('methodContent').innerHTML = `
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="bg-white/5 rounded-xl p-3 text-center">
+            <div class="text-xs text-gray-400">Winrate</div>
+            <div class="text-2xl font-bold ${r.winrate >= 68 ? 'text-green-400' : 'text-amber-400'}">${r.winrate}%</div>
+          </div>
+          <div class="bg-white/5 rounded-xl p-3 text-center">
+            <div class="text-xs text-gray-400">Lợi nhuận</div>
+            <div class="text-2xl font-bold ${r.profit >= 0 ? 'text-green-400' : 'text-red-400'}">${r.profit >= 0 ? '+' : ''}${r.profit}</div>
+          </div>
+          <div class="bg-white/5 rounded-xl p-3 text-center">
+            <div class="text-xs text-gray-400">Số lệnh</div>
+            <div class="text-xl font-bold">${r.total}</div>
+          </div>
+          <div class="bg-white/5 rounded-xl p-3 text-center">
+            <div class="text-xs text-gray-400">Dự đoán tiếp</div>
+            <div class="text-xl font-bold ${r.nextPred === 'T' ? 'text-green-400' : 'text-red-400'}">${r.nextPred || '-'}</div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-4 gap-2 text-xs">
+          <div class="bg-white/5 rounded-lg p-2 text-center">
+            <div class="text-gray-400">Thắng</div>
+            <div class="font-bold text-green-400">${r.wins}</div>
+          </div>
+          <div class="bg-white/5 rounded-lg p-2 text-center">
+            <div class="text-gray-400">Thua</div>
+            <div class="font-bold text-red-400">${r.losses}</div>
+          </div>
+          <div class="bg-white/5 rounded-lg p-2 text-center">
+            <div class="text-gray-400">Win max</div>
+            <div class="font-bold text-green-400">${r.maxWin}</div>
+          </div>
+          <div class="bg-white/5 rounded-lg p-2 text-center">
+            <div class="text-gray-400">Loss max</div>
+            <div class="font-bold text-red-400">${r.maxLoss}</div>
+          </div>
+        </div>
+        
+        <div class="mt-4 text-center">
+          <div class="text-xs text-gray-400 mb-1">Kelly Criterion</div>
+          <div class="text-lg font-bold text-blue-400">${r.kelly}%</div>
+        </div>
+      `;
+      
+      openModal('methodModal');
+    }
+
+    // ============ TOAST ============
+    function toast(msg, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const colors = {
+        success: 'border-green-500',
+        warning: 'border-amber-500',
+        info: 'border-blue-500',
+        error: 'border-red-500'
+      };
+      
+      const el = document.createElement('div');
+      el.className = `toast p-3 border ${colors[type]} text-sm mb-2`;
+      el.textContent = msg;
+      container.appendChild(el);
+      
+      setTimeout(() => el.remove(), 3000);
+    }
+
+    // ============ STORAGE ============
+    function save() {
+      localStorage.setItem('taixiu_data', JSON.stringify(state));
+    }
+
+    function load() {
+      try {
+        const saved = localStorage.getItem('taixiu_data');
+        if (saved) {
+          state = JSON.parse(saved);
+          document.getElementById('capitalInput').value = state.settings.capital;
+          document.getElementById('betPercent').value = state.settings.betPercent;
+          document.getElementById('takeProfit').value = state.settings.takeProfit;
+          document.getElementById('stopLoss').value = state.settings.stopLoss;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Auto save
+    setInterval(save, 5000);
+
+    // ============ EXPORT/IMPORT ============
+    function exportCSV() {
+      if (!state.history.length) { toast('⚠️ Không có dữ liệu', 'warning'); return; }
+      
+      const rows = ['Session,Result,Timestamp'];
+      state.history.forEach((item, i) => {
+        rows.push(`${i + 1},${item.result},${item.timestamp}`);
+      });
+      
+      download(rows.join('\n'), 'taixiu.csv', 'text/csv');
+      toast('📤 Đã xuất CSV', 'success');
+    }
+
+    function exportJSON() {
+      if (!state.history.length) { toast('⚠️ Không có dữ liệu', 'warning'); return; }
+      download(JSON.stringify(state.history, null, 2), 'taixiu.json', 'application/json');
+      toast('📤 Đã xuất JSON', 'success');
+    }
+
+    function exportExcel() {
+      if (!state.history.length) { toast('⚠️ Không có dữ liệu', 'warning'); return; }
+      
+      const data = state.history.map((item, i) => ({
+        'Phiên': i + 1,
+        'Kết quả': item.result === 'T' ? 'TÀI' : 'XỈU',
+        'Thời gian': item.timestamp
+      }));
+      
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Lịch sử');
+      XLSX.writeFile(wb, 'taixiu.xlsx');
+      toast('📊 Đã xuất Excel', 'success');
+    }
+
+    function exportPDF() {
+      if (!state.history.length) { toast('⚠️ Không có dữ liệu', 'warning'); return; }
+      
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFontSize(18);
+      doc.text('SOI CAU TAI XIU - BAO CAO', 105, 20, { align: 'center' });
+      
+      doc.setFontSize(12);
+      doc.text(`Tong phien: ${state.history.length}`, 20, 40);
+      
+      const tai = state.history.filter(x => x.result === 'T').length;
+      const xiu = state.history.filter(x => x.result === 'X').length;
+      
+      doc.text(`TAI: ${tai} (${(tai/state.history.length*100).toFixed(1)}%)`, 20, 50);
+      doc.text(`XIU: ${xiu} (${(xiu/state.history.length*100).toFixed(1)}%)`, 20, 60);
+      
+      if (state.history.length >= 10) {
+        const results = Object.keys(methods).map(k => backtest(k, state.history));
+        results.sort((a, b) => b.winrate - a.winrate);
+        
+        doc.text('TOP 5 PHUONG PHAP:', 20, 80);
+        results.slice(0, 5).forEach((r, i) => {
+          doc.text(`${i + 1}. ${r.name}: ${r.winrate}%`, 25, 90 + i * 10);
+        });
+      }
+      
+      doc.save('taixiu.pdf');
+      toast('📄 Đã xuất PDF', 'success');
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const content = ev.target.result;
+          
+          if (file.name.endsWith('.json')) {
+            const data = JSON.parse(content);
+            if (Array.isArray(data)) {
+              state.history = data;
+              save();
+              render();
+              toast(`📥 Đã nhập ${data.length} phiên`, 'success');
+            }
+          } else if (file.name.endsWith('.csv')) {
+            const lines = content.split('\n').slice(1); // Skip header
+            let count = 0;
+            lines.forEach(line => {
+              const parts = line.split(',');
+              if (parts[1] === 'T' || parts[1] === 'X') {
+                state.history.push({
+                  id: Date.now() + count,
+                  result: parts[1],
+                  timestamp: parts[2] || new Date().toISOString()
+                });
+                count++;
+              }
+            });
+            save();
+            render();
+            toast(`📥 Đã nhập ${count} phiên`, 'success');
+          }
+        } catch (err) {
+          toast('❌ Lỗi đọc file', 'error');
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+      closeModal('dataModal');
+    }
+
+    function download(content, filename, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ============ KEYBOARD ============
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      if (e.key === 't' || e.key === 'T' || e.key === '1') addResult('T');
+      else if (e.key === 'x' || e.key === 'X' || e.key === '0') addResult('X');
+      else if (e.key === 'z' || e.key === 'Z') undoLast();
+      else if (e.key === '?') openTab('help');
+      else if (e.key === 'Escape') {
+        document.querySelectorAll('.modal:not(.hidden)').forEach(m => m.classList.add('hidden'));
+      }
+    });
+
+    // ============ INIT ============
+    document.addEventListener('DOMContentLoaded', () => {
+      load();
+      render();
+    });
+  </script>
+</body>
+</html>
